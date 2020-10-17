@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -76,6 +77,7 @@ public class DictionaryListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_dictionary_list_fragment,menu);
+        updateSubtitle();
     }
 
     @Override
@@ -97,6 +99,12 @@ public class DictionaryListFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void updateSubtitle() {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        String subTitle = mRepository.getWords().size() + "";
+        activity.getSupportActionBar().setSubtitle(subTitle);
     }
 
     private void findView(View view) {
