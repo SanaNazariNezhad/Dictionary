@@ -1,5 +1,6 @@
 package org.maktab.dictionary.controller.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import org.maktab.dictionary.InsertFragment;
 import org.maktab.dictionary.R;
+import org.maktab.dictionary.controller.activity.DictionaryDetail;
 import org.maktab.dictionary.model.DictionaryWord;
 import org.maktab.dictionary.repository.DictionaryDBRepository;
 import org.maktab.dictionary.repository.IRepository;
@@ -181,13 +183,15 @@ public class DictionaryListFragment extends Fragment {
             mTextViewWord = itemView.findViewById(R.id.row_item_textView_word);
             mTextViewMeaning = itemView.findViewById(R.id.row_item_textView_meaning);
 
-            /*itemView.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mCallbacks.onCrimeSelected(mCrime);
+                    Intent dictionaryDetailIntent = DictionaryDetail.newIntent(getActivity(),
+                            mDictionaryWord.getPrimaryId(),mFrom,mTo);
+                    startActivity(dictionaryDetailIntent);
 
                 }
-            });*/
+            });
         }
 
         public void bindCrime(DictionaryWord dictionaryWord) {
