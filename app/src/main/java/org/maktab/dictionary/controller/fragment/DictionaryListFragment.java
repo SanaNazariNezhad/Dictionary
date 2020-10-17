@@ -17,14 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.maktab.dictionary.InsertFragment;
 import org.maktab.dictionary.R;
 import org.maktab.dictionary.controller.activity.DictionaryDetail;
 import org.maktab.dictionary.model.DictionaryWord;
@@ -70,8 +67,27 @@ public class DictionaryListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dictionary_list, container, false);
         findView(view);
         initView(view);
+        if (savedInstanceState != null){
+            mDictionaryWords = mRepository.getWords();
+            search();
+            initRecyclerView();
+        }
         listeners();
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateSubtitle();
+        search();
+        updateUI();
     }
 
     @Override
@@ -103,7 +119,8 @@ public class DictionaryListFragment extends Fragment {
 
     private void updateSubtitle() {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        String subTitle = mRepository.getWords().size() + "";
+        IRepository iRepository = DictionaryDBRepository.getInstance(getActivity());
+        String subTitle = iRepository.getWords().size() + "";
         activity.getSupportActionBar().setSubtitle(subTitle);
     }
 

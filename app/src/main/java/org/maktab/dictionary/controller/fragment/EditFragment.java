@@ -1,4 +1,4 @@
-package org.maktab.dictionary;
+package org.maktab.dictionary.controller.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,25 +15,28 @@ import android.widget.Button;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.maktab.dictionary.R;
 import org.maktab.dictionary.model.DictionaryWord;
 import org.maktab.dictionary.repository.DictionaryDBRepository;
 import org.maktab.dictionary.repository.IRepository;
 
-import java.util.Objects;
-
-public class InsertFragment extends DialogFragment {
+public class EditFragment extends DialogFragment {
+    public static final String KEY_VALUE_WORD_ID = "key_value_WordId";
     private TextInputEditText mEditTextArabic, mEditTextEnglish, mEditTextFrench, mEditTextPersian;
     private TextInputLayout mArabicForm, mEnglishForm, mFrenchForm, mPersianForm;
     private Button mButtonCancel, mButtonSave;
     private IRepository mIRepository;
+    private long mWordId;
+    private DictionaryWord mDictionaryWord;
 
-    public InsertFragment() {
+    public EditFragment() {
         // Required empty public constructor
     }
 
-    public static InsertFragment newInstance() {
-        InsertFragment fragment = new InsertFragment();
+    public static EditFragment newInstance(long wordId) {
+        EditFragment fragment = new EditFragment();
         Bundle args = new Bundle();
+        args.putLong(KEY_VALUE_WORD_ID,wordId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -42,17 +45,26 @@ public class InsertFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIRepository = DictionaryDBRepository.getInstance(getActivity());
-
+        mWordId = getArguments().getLong(KEY_VALUE_WORD_ID);
+        mDictionaryWord = mIRepository.getWord(mWordId);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_insert, container, false);
+        View view = inflater.inflate(R.layout.fragment_edit, container, false);
         findView(view);
+        initView();
         listeners();
         return view;
+    }
+
+    private void initView() {
+        mEditTextArabic.setText(mDictionaryWord.getArabic());
+        mEditTextEnglish.setText(mDictionaryWord.getEnglish());
+        mEditTextFrench.setText(mDictionaryWord.getFrench());
+        mEditTextPersian.setText(mDictionaryWord.getPersian());
     }
 
     private void listeners() {
@@ -110,24 +122,26 @@ public class InsertFragment extends DialogFragment {
         int requestCode = getTargetRequestCode();
         int resultCode = Activity.RESULT_OK;
         Intent intent = new Intent();
-        DictionaryWord dictionaryWord = new DictionaryWord(mEditTextArabic.getText().toString(),
-                mEditTextEnglish.getText().toString(), mEditTextFrench.getText().toString(),
-                mEditTextPersian.getText().toString());
-        mIRepository.insertWord(dictionaryWord);
+        mDictionaryWord.setArabic(mEditTextArabic.getText().toString());
+        mDictionaryWord.setEnglish( mEditTextEnglish.getText().toString());
+        mDictionaryWord.setFrench(mEditTextFrench.getText().toString());
+        mDictionaryWord.setPersian(mEditTextPersian.getText().toString());
+
+        mIRepository.updateWord(mDictionaryWord);
 
         fragment.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void findView(View view) {
-        mButtonCancel = view.findViewById(R.id.btn_cancel_insert);
-        mButtonSave = view.findViewById(R.id.btn_save_insert);
-        mEditTextArabic = view.findViewById(R.id.arabic_insert);
-        mEditTextEnglish = view.findViewById(R.id.english_insert);
-        mEditTextFrench = view.findViewById(R.id.french_insert);
-        mEditTextPersian = view.findViewById(R.id.persian_insert);
-        mArabicForm = view.findViewById(R.id.arabic_form_insert);
-        mEnglishForm = view.findViewById(R.id.english_form_insert);
-        mFrenchForm = view.findViewById(R.id.french_form_insert);
-        mPersianForm = view.findViewById(R.id.persian_form_insert);
+        mButtonCancel = view.findViewById(R.id.btn_cancel_edit);
+        mButtonSave = view.findViewById(R.id.btn_save_edit);
+        mEditTextArabic = view.findViewById(R.id.arabic_edit);
+        mEditTextEnglish = view.findViewById(R.id.english_edit);
+        mEditTextFrench = view.findViewById(R.id.french_edit);
+        mEditTextPersian = view.findViewById(R.id.persian_edit);
+        mArabicForm = view.findViewById(R.id.arabic_form_edit);
+        mEnglishForm = view.findViewById(R.id.english_form_edit);
+        mFrenchForm = view.findViewById(R.id.french_form_edit);
+        mPersianForm = view.findViewById(R.id.persian_form_edit);
     }
 }
