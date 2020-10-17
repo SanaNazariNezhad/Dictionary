@@ -11,4 +11,8 @@ public interface IRepository {
     void deleteWord(DictionaryWord word);
     List<DictionaryWord> getWords();
     DictionaryWord getWord(long inputId);
+    List<DictionaryWord> searchArabic(String searchValue);
+    List<DictionaryWord> searchEnglish(String searchValue);
+    List<DictionaryWord> searchFrench(String searchValue);
+    List<DictionaryWord> searchPersian(String searchValue);
 }

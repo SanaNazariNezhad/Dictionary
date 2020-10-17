@@ -10,16 +10,16 @@ public class DictionaryWord {
     @ColumnInfo(name = "id")
     private long primaryId;
 
-    @ColumnInfo(name = "Arabic")
+    @ColumnInfo(name = "arabic")
     private String mArabic;
 
-    @ColumnInfo(name = "English")
+    @ColumnInfo(name = "english")
     private String mEnglish;
 
-    @ColumnInfo(name = "French")
+    @ColumnInfo(name = "french")
     private String mFrench;
 
-    @ColumnInfo(name = "Persian")
+    @ColumnInfo(name = "persian")
     private String mPersian;
 
     public long getPrimaryId() {

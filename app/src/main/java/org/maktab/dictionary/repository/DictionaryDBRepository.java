@@ -65,4 +65,24 @@ public class DictionaryDBRepository implements IRepository {
     public DictionaryWord getWord(long inputId) {
         return mDictionaryDAO.getWord(inputId);
     }
+
+    @Override
+    public List<DictionaryWord> searchArabic(String searchValue) {
+        return mDictionaryDAO.searchArabic(searchValue);
+    }
+
+    @Override
+    public List<DictionaryWord> searchEnglish(String searchValue) {
+        return mDictionaryDAO.searchEnglish(searchValue);
+    }
+
+    @Override
+    public List<DictionaryWord> searchFrench(String searchValue) {
+        return mDictionaryDAO.searchFrench(searchValue);
+    }
+
+    @Override
+    public List<DictionaryWord> searchPersian(String searchValue) {
+        return mDictionaryDAO.searchPersian(searchValue);
+    }
 }

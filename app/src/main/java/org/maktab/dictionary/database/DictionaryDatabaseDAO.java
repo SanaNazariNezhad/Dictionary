@@ -27,4 +27,16 @@ public interface DictionaryDatabaseDAO {
 
     @Query("SELECT * FROM dictionaryTable WHERE id=:inputId")
     DictionaryWord getWord(long inputId);
+
+    @Query("SELECT * FROM dictionaryTable WHERE arabic LIKE :searchValue")
+    List<DictionaryWord> searchArabic(String searchValue);
+
+    @Query("SELECT * FROM dictionaryTable WHERE english LIKE :searchValue")
+    List<DictionaryWord> searchEnglish(String searchValue);
+
+    @Query("SELECT * FROM dictionaryTable WHERE french LIKE :searchValue")
+    List<DictionaryWord> searchFrench(String searchValue);
+
+    @Query("SELECT * FROM dictionaryTable WHERE persian LIKE :searchValue")
+    List<DictionaryWord> searchPersian(String searchValue);
 }

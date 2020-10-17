@@ -17,6 +17,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import org.maktab.dictionary.R;
 import org.maktab.dictionary.model.DictionaryWord;
 import org.maktab.dictionary.repository.DictionaryDBRepository;
@@ -29,6 +31,10 @@ public class DictionaryListFragment extends Fragment {
     private IRepository mRepository;
     private List<DictionaryWord> mDictionaryWords;
     private DictionaryAdapter mDictionaryAdapter;
+    private TextInputEditText mEditTextSearch;
+    private ImageView mImageViewSearch;
+    private TextView mTextViewFrom, mTextViewTo;
+    private String mFrom,mTo;
 
     public DictionaryListFragment() {
         // Required empty public constructor
@@ -55,22 +61,61 @@ public class DictionaryListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dictionary_list, container, false);
         findView(view);
         initView(view);
+        listeners();
         return view;
     }
 
     private void findView(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_dictionary_list);
+        mEditTextSearch = view.findViewById(R.id.search);
+        mImageViewSearch = view.findViewById(R.id.search_img);
+        mTextViewFrom = view.findViewById(R.id.filled_exposed_dropdown_from);
+        mTextViewTo = view.findViewById(R.id.filled_exposed_dropdown_to);
+
     }
 
     private void initView(View view) {
         exposedDropdownMenus(view, R.id.filled_exposed_dropdown_from);
         exposedDropdownMenus(view, R.id.filled_exposed_dropdown_to);
+    }
+
+    private void listeners() {
+        mImageViewSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                search();
+                initRecyclerView();
+            }
+        });
+    }
+
+    private void search() {
+        String search = "%" + mEditTextSearch.getText() + "%";
+        mFrom = mTextViewFrom.getText().toString();
+        mTo = mTextViewTo.getText().toString();
+        switch (mFrom) {
+            case "Arabic":
+                mDictionaryWords = mRepository.searchArabic(search);
+                break;
+            case "English":
+                mDictionaryWords = mRepository.searchEnglish(search);
+                break;
+            case "French":
+                mDictionaryWords = mRepository.searchFrench(search);
+                break;
+            default:
+                mDictionaryWords = mRepository.searchPersian(search);
+                break;
+        }
+    }
+
+    private void initRecyclerView(){
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateUI();
     }
 
     public void updateUI() {
-        mDictionaryWords = mRepository.getWords();
+//        mDictionaryWords = mRepository.getWords();
         if (mDictionaryAdapter == null) {
             mDictionaryAdapter = new DictionaryAdapter(mDictionaryWords);
             mRecyclerView.setAdapter(mDictionaryAdapter);
@@ -118,8 +163,25 @@ public class DictionaryListFragment extends Fragment {
 
         public void bindCrime(DictionaryWord dictionaryWord) {
             mDictionaryWord = dictionaryWord;
-            mTextViewWord.setText(dictionaryWord.getEnglish());
-            mTextViewMeaning.setText(dictionaryWord.getPersian());
+            showWord(dictionaryWord, mFrom, mTextViewWord);
+            showWord(dictionaryWord, mTo, mTextViewMeaning);
+        }
+
+        private void showWord(DictionaryWord dictionaryWord, String state, TextView textViewWord) {
+            switch (state) {
+                case "Arabic":
+                    textViewWord.setText(dictionaryWord.getArabic());
+                    break;
+                case "English":
+                    textViewWord.setText(dictionaryWord.getEnglish());
+                    break;
+                case "French":
+                    textViewWord.setText(dictionaryWord.getFrench());
+                    break;
+                default:
+                    textViewWord.setText(dictionaryWord.getPersian());
+                    break;
+            }
         }
     }
 
