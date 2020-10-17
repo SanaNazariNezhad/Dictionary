@@ -5,4 +5,11 @@
     <string name="translate_from">Translate From</string>
     <string name="translate_to">Translate To</string>
     <string name="search">Search</string>
+    <string name="insert">insert</string>
+    <string name="arabic">Arabic</string>
+    <string name="english">English</string>
+    <string name="french">French</string>
+    <string name="persian">Persian</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>

@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,6 +22,7 @@ import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.maktab.dictionary.InsertFragment;
 import org.maktab.dictionary.R;
 import org.maktab.dictionary.model.DictionaryWord;
 import org.maktab.dictionary.repository.DictionaryDBRepository;
@@ -27,6 +31,8 @@ import org.maktab.dictionary.repository.IRepository;
 import java.util.List;
 
 public class DictionaryListFragment extends Fragment {
+    public static final String FRAGMENT_TAG_INSERT = "Insert";
+    public static final int REQUEST_CODE_INSERT = 0;
     private RecyclerView mRecyclerView;
     private IRepository mRepository;
     private List<DictionaryWord> mDictionaryWords;
@@ -51,7 +57,7 @@ public class DictionaryListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepository = DictionaryDBRepository.getInstance(getActivity());
-
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -65,13 +71,38 @@ public class DictionaryListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_dictionary_list_fragment,menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.app_bar_search:
+                InsertFragment insertFragment = InsertFragment.newInstance();
+
+                insertFragment.setTargetFragment(
+                        DictionaryListFragment.this,
+                        REQUEST_CODE_INSERT);
+
+                insertFragment.show(
+                        getActivity().getSupportFragmentManager(),
+                        FRAGMENT_TAG_INSERT);
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void findView(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_dictionary_list);
         mEditTextSearch = view.findViewById(R.id.search);
         mImageViewSearch = view.findViewById(R.id.search_img);
         mTextViewFrom = view.findViewById(R.id.filled_exposed_dropdown_from);
         mTextViewTo = view.findViewById(R.id.filled_exposed_dropdown_to);
-
     }
 
     private void initView(View view) {
@@ -115,7 +146,6 @@ public class DictionaryListFragment extends Fragment {
     }
 
     public void updateUI() {
-//        mDictionaryWords = mRepository.getWords();
         if (mDictionaryAdapter == null) {
             mDictionaryAdapter = new DictionaryAdapter(mDictionaryWords);
             mRecyclerView.setAdapter(mDictionaryAdapter);
@@ -123,7 +153,6 @@ public class DictionaryListFragment extends Fragment {
             mDictionaryAdapter.setDictionaryWords(mDictionaryWords);
             mDictionaryAdapter.notifyDataSetChanged();
         }
-
     }
 
     private void exposedDropdownMenus(View view, int filledExposedDropdown) {
