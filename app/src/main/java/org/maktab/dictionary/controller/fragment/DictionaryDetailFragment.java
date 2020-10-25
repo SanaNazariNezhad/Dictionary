@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.fragment.app.Fragment;
 
@@ -59,6 +60,8 @@ public class DictionaryDetailFragment extends Fragment{
         mFrom = getArguments().getString(KEY_VALUE_FROM);
         mTo = getArguments().getString(KEY_VALUE_TO);
         mIRepository = DictionaryDBRepository.getInstance(getActivity());
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle(R.string.app_name);
     }
 
     @Override

@@ -1,9 +1,14 @@
 package org.maktab.dictionary.controller.fragment;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,10 +34,14 @@ import org.maktab.dictionary.repository.DictionaryDBRepository;
 import org.maktab.dictionary.repository.IRepository;
 
 import java.util.List;
+import java.util.Locale;
 
 public class DictionaryListFragment extends Fragment {
     public static final String FRAGMENT_TAG_INSERT = "Insert";
     public static final int REQUEST_CODE_INSERT = 0;
+    private static final int REQUEST_CODE_SETTING = 1;
+    public static final String SETTINGS = "Settings";
+    public static final String MY_LANG = "My_Lang";
     private RecyclerView mRecyclerView;
     private IRepository mRepository;
     private List<DictionaryWord> mDictionaryWords;
@@ -40,7 +49,8 @@ public class DictionaryListFragment extends Fragment {
     private TextInputEditText mEditTextSearch;
     private ImageView mImageViewSearch;
     private TextView mTextViewFrom, mTextViewTo;
-    private String mFrom,mTo;
+    private String mFrom, mTo;
+    private String mArabic,mEnglish,mFrench,mPersian;
 
     public DictionaryListFragment() {
         // Required empty public constructor
@@ -57,7 +67,14 @@ public class DictionaryListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepository = DictionaryDBRepository.getInstance(getActivity());
+        mArabic = getString(R.string.arabic);
+        mEnglish = getString(R.string.english);
+        mFrench = getString(R.string.french);
+        mPersian = getString(R.string.persian);
         setHasOptionsMenu(true);
+        loadLocale();
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle(R.string.app_name);
     }
 
     @Override
@@ -67,7 +84,7 @@ public class DictionaryListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dictionary_list, container, false);
         findView(view);
         initView(view);
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             mDictionaryWords = mRepository.getWords();
             search();
             initRecyclerView();
@@ -92,29 +109,87 @@ public class DictionaryListFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_dictionary_list_fragment,menu);
+        inflater.inflate(R.menu.menu_dictionary_list_fragment, menu);
         updateSubtitle();
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.app_bar_search:
-                InsertFragment insertFragment = InsertFragment.newInstance();
 
+                InsertFragment insertFragment = InsertFragment.newInstance();
                 insertFragment.setTargetFragment(
                         DictionaryListFragment.this,
                         REQUEST_CODE_INSERT);
-
                 insertFragment.show(
                         getActivity().getSupportFragmentManager(),
                         FRAGMENT_TAG_INSERT);
 
                 return true;
 
+            case R.id.app_bar_setting:
+                showChangeLanguageDialog();
+
+                return true;
+
+
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showChangeLanguageDialog() {
+        final String[] listItems = {mEnglish,mPersian};
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(getActivity());
+        mBuilder.setTitle(R.string.select_language);
+        mBuilder.setSingleChoiceItems(listItems, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (i==0){
+                    setLocal("en");
+                }
+                else if (i==1){
+                    setLocal("fa");
+                }
+            }
+        });
+        mBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        mBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                getActivity().recreate();
+                dialogInterface.dismiss();
+            }
+        });
+
+        AlertDialog mDialog = mBuilder.create();
+        mDialog.show();
+    }
+
+    private void setLocal(String lang) {
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        getActivity().getBaseContext().getResources().updateConfiguration(config,
+                getActivity().getBaseContext().getResources().getDisplayMetrics());
+
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences(SETTINGS,getActivity().MODE_PRIVATE).edit();
+        editor.putString(MY_LANG,lang);
+        editor.apply();
+
+    }
+
+    public void loadLocale(){
+        SharedPreferences preferences = getActivity().getSharedPreferences(SETTINGS, Activity.MODE_PRIVATE);
+        String language = preferences.getString(MY_LANG,"");
+        setLocal(language);
     }
 
     private void updateSubtitle() {
@@ -165,9 +240,23 @@ public class DictionaryListFragment extends Fragment {
                 mDictionaryWords = mRepository.searchPersian(search);
                 break;
         }
+        switch (mFrom) {
+            case "عربی":
+                mDictionaryWords = mRepository.searchArabic(search);
+                break;
+            case "انگلیسی":
+                mDictionaryWords = mRepository.searchEnglish(search);
+                break;
+            case "فرانسوی":
+                mDictionaryWords = mRepository.searchFrench(search);
+                break;
+            default:
+                mDictionaryWords = mRepository.searchPersian(search);
+                break;
+        }
     }
 
-    private void initRecyclerView(){
+    private void initRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateUI();
     }
@@ -183,7 +272,7 @@ public class DictionaryListFragment extends Fragment {
     }
 
     private void exposedDropdownMenus(View view, int filledExposedDropdown) {
-        String[] COUNTRIES = new String[]{"Arabic", "English", "French", "Persian"};
+        String[] COUNTRIES = new String[]{mArabic, mEnglish, mFrench, mPersian};
 
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
@@ -212,7 +301,7 @@ public class DictionaryListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Intent dictionaryDetailIntent = DictionaryDetail.newIntent(getActivity(),
-                            mDictionaryWord.getPrimaryId(),mFrom,mTo);
+                            mDictionaryWord.getPrimaryId(), mFrom, mTo);
                     startActivity(dictionaryDetailIntent);
 
                 }
@@ -234,6 +323,20 @@ public class DictionaryListFragment extends Fragment {
                     textViewWord.setText(dictionaryWord.getEnglish());
                     break;
                 case "French":
+                    textViewWord.setText(dictionaryWord.getFrench());
+                    break;
+                default:
+                    textViewWord.setText(dictionaryWord.getPersian());
+                    break;
+            }
+            switch (state) {
+                case "عربی":
+                    textViewWord.setText(dictionaryWord.getArabic());
+                    break;
+                case "انگلیسی":
+                    textViewWord.setText(dictionaryWord.getEnglish());
+                    break;
+                case "فرانسوی":
                     textViewWord.setText(dictionaryWord.getFrench());
                     break;
                 default:

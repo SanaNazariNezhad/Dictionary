@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">دیکشنری</string>
+    <string name="translate_from">ترجمه از</string>
+    <string name="translate_to">ترجمه به</string>
+    <string name="search">جستجو</string>
+    <string name="insert">اضافه کردن</string>
+    <string name="arabic">عربی</string>
+    <string name="english">انگلیسی</string>
+    <string name="french">فرانسوی</string>
+    <string name="persian">فارسی</string>
+    <string name="cancel">بازگشت</string>
+    <string name="save">ذخیره</string>
+    <string name="share">اشتراک</string>
+    <string name="delete">حذف کردن</string>
+    <string name="edit">ویرایش</string>
+    <string name="share_word"> ترجمه ی %1$s در %2$s، %3$s می باشد.
+    </string>
+    <string name="dictionary_sharing_massage">پیام اشتراک دیکشنری</string>
+    <string name="add_new_word_to_dictionary">اضافه کردن کلمه جدید به دیکشنری</string>
+    <string name="edit_word">ویرایش کلمه:</string>
+    <string name="delete_word">حذف کلمه:</string>
+    <string name="yes">بله</string>
+    <string name="no">خیر</string>
+    <string name="are_you_sure">آیا مطمئن هستید؟</string>
+    <string name="language">زبان</string>
+    <string name="select_language">زبان را انتخاب کنید:</string>
+</resources>
