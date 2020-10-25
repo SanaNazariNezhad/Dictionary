@@ -15,6 +15,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:id="@+id/from_form"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="2dp"
@@ -31,6 +32,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:id="@+id/to_form"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

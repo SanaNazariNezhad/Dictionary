@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.maktab.dictionary.R;
 import org.maktab.dictionary.controller.activity.DictionaryDetail;
@@ -49,8 +50,10 @@ public class DictionaryListFragment extends Fragment {
     private TextInputEditText mEditTextSearch;
     private ImageView mImageViewSearch;
     private TextView mTextViewFrom, mTextViewTo;
+    private TextInputLayout mTextInputLayoutFrom, mTextInputLayoutTo;
     private String mFrom, mTo;
-    private String mArabic,mEnglish,mFrench,mPersian;
+    private String mArabic, mEnglish, mFrench, mPersian;
+    private String mStringLanguage;
 
     public DictionaryListFragment() {
         // Required empty public constructor
@@ -67,10 +70,6 @@ public class DictionaryListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepository = DictionaryDBRepository.getInstance(getActivity());
-        mArabic = getString(R.string.arabic);
-        mEnglish = getString(R.string.english);
-        mFrench = getString(R.string.french);
-        mPersian = getString(R.string.persian);
         setHasOptionsMenu(true);
         loadLocale();
         AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -140,16 +139,15 @@ public class DictionaryListFragment extends Fragment {
     }
 
     private void showChangeLanguageDialog() {
-        final String[] listItems = {mEnglish,mPersian};
+        final String[] listItems = {mEnglish, mPersian};
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(getActivity());
         mBuilder.setTitle(R.string.select_language);
         mBuilder.setSingleChoiceItems(listItems, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (i==0){
+                if (i == 0) {
                     setLocal("en");
-                }
-                else if (i==1){
+                } else if (i == 1) {
                     setLocal("fa");
                 }
             }
@@ -180,16 +178,21 @@ public class DictionaryListFragment extends Fragment {
         getActivity().getBaseContext().getResources().updateConfiguration(config,
                 getActivity().getBaseContext().getResources().getDisplayMetrics());
 
-        SharedPreferences.Editor editor = getActivity().getSharedPreferences(SETTINGS,getActivity().MODE_PRIVATE).edit();
-        editor.putString(MY_LANG,lang);
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences(SETTINGS, getActivity().MODE_PRIVATE).edit();
+        editor.putString(MY_LANG, lang);
         editor.apply();
 
     }
 
-    public void loadLocale(){
+    public void loadLocale() {
         SharedPreferences preferences = getActivity().getSharedPreferences(SETTINGS, Activity.MODE_PRIVATE);
-        String language = preferences.getString(MY_LANG,"");
+        String language = preferences.getString(MY_LANG, "");
         setLocal(language);
+        mStringLanguage = language;
+        mArabic = getString(R.string.arabic);
+        mEnglish = getString(R.string.english);
+        mFrench = getString(R.string.french);
+        mPersian = getString(R.string.persian);
     }
 
     private void updateSubtitle() {
@@ -205,6 +208,8 @@ public class DictionaryListFragment extends Fragment {
         mImageViewSearch = view.findViewById(R.id.search_img);
         mTextViewFrom = view.findViewById(R.id.filled_exposed_dropdown_from);
         mTextViewTo = view.findViewById(R.id.filled_exposed_dropdown_to);
+        mTextInputLayoutFrom = view.findViewById(R.id.from_form);
+        mTextInputLayoutTo = view.findViewById(R.id.to_form);
     }
 
     private void initView(View view) {
@@ -216,43 +221,47 @@ public class DictionaryListFragment extends Fragment {
         mImageViewSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                search();
-                initRecyclerView();
+                if (checkInputLang()) {
+                    search();
+                    initRecyclerView();
+                }
             }
         });
+    }
+
+    private boolean checkInputLang() {
+        mTextInputLayoutFrom.setErrorEnabled(false);
+        mTextInputLayoutTo.setErrorEnabled(false);
+        if (mTextViewFrom.getText().toString().trim().isEmpty() && mTextViewTo.getText().toString().trim().isEmpty()) {
+            mTextInputLayoutFrom.setErrorEnabled(true);
+            mTextInputLayoutFrom.setError("Field cannot be empty!");
+            mTextInputLayoutTo.setErrorEnabled(true);
+            mTextInputLayoutTo.setError("Field cannot be empty!");
+            return false;
+        } else if (mTextViewFrom.getText().toString().trim().isEmpty()) {
+            mTextInputLayoutFrom.setErrorEnabled(true);
+            mTextInputLayoutFrom.setError("Field cannot be empty!");
+            return false;
+        } else if (mTextViewTo.getText().toString().trim().isEmpty()) {
+            mTextInputLayoutTo.setErrorEnabled(true);
+            mTextInputLayoutTo.setError("Field cannot be empty!");
+            return false;
+        }
+        return true;
     }
 
     private void search() {
         String search = "%" + mEditTextSearch.getText() + "%";
         mFrom = mTextViewFrom.getText().toString();
         mTo = mTextViewTo.getText().toString();
-        switch (mFrom) {
-            case "Arabic":
-                mDictionaryWords = mRepository.searchArabic(search);
-                break;
-            case "English":
-                mDictionaryWords = mRepository.searchEnglish(search);
-                break;
-            case "French":
-                mDictionaryWords = mRepository.searchFrench(search);
-                break;
-            default:
-                mDictionaryWords = mRepository.searchPersian(search);
-                break;
-        }
-        switch (mFrom) {
-            case "عربی":
-                mDictionaryWords = mRepository.searchArabic(search);
-                break;
-            case "انگلیسی":
-                mDictionaryWords = mRepository.searchEnglish(search);
-                break;
-            case "فرانسوی":
-                mDictionaryWords = mRepository.searchFrench(search);
-                break;
-            default:
-                mDictionaryWords = mRepository.searchPersian(search);
-                break;
+        if (mFrom.equals("Arabic") || mFrom.equals("عربی")){
+            mDictionaryWords = mRepository.searchArabic(search);
+        }else if (mFrom.equals("English") || mFrom.equals("انگلیسی")){
+            mDictionaryWords = mRepository.searchEnglish(search);
+        }else if (mFrom.equals("French") || mFrom.equals("فرانسوی")){
+            mDictionaryWords = mRepository.searchEnglish(search);
+        }else if (mFrom.equals("Persian") || mFrom.equals("فارسی")){
+            mDictionaryWords = mRepository.searchEnglish(search);
         }
     }
 
@@ -315,33 +324,14 @@ public class DictionaryListFragment extends Fragment {
         }
 
         private void showWord(DictionaryWord dictionaryWord, String state, TextView textViewWord) {
-            switch (state) {
-                case "Arabic":
-                    textViewWord.setText(dictionaryWord.getArabic());
-                    break;
-                case "English":
-                    textViewWord.setText(dictionaryWord.getEnglish());
-                    break;
-                case "French":
-                    textViewWord.setText(dictionaryWord.getFrench());
-                    break;
-                default:
-                    textViewWord.setText(dictionaryWord.getPersian());
-                    break;
-            }
-            switch (state) {
-                case "عربی":
-                    textViewWord.setText(dictionaryWord.getArabic());
-                    break;
-                case "انگلیسی":
-                    textViewWord.setText(dictionaryWord.getEnglish());
-                    break;
-                case "فرانسوی":
-                    textViewWord.setText(dictionaryWord.getFrench());
-                    break;
-                default:
-                    textViewWord.setText(dictionaryWord.getPersian());
-                    break;
+            if (state.equals("Arabic") || state.equals("عربی")){
+                textViewWord.setText(dictionaryWord.getArabic());
+            }else if (state.equals("English") || state.equals("انگلیسی")){
+                textViewWord.setText(dictionaryWord.getEnglish());
+            }else if (state.equals("French") || state.equals("فرانسوی")){
+                textViewWord.setText(dictionaryWord.getFrench());
+            }else if (state.equals("Persian") || state.equals("فارسی")){
+                textViewWord.setText(dictionaryWord.getPersian());
             }
         }
     }
